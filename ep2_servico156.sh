@@ -203,13 +203,88 @@ if [[ "$arg" == "" || -e "$arg" ]]; then
         echo "Para baixar os dados antes de gerar as estatísticas, use:"
         echo "    ./ep2_servico156.sh <nome do arquivo com URLs de dados do Serviço 156>"
         exit 1
-    fi
     #-----------------------------------------
 
 
 
     #----------- Menu de seleções ------------
-    
+    else
+        arq_escol="arquivocompleto.csv"
+        OPCOES="selecionar_arquivo adicionar_filtro_coluna limpar_filtros_colunas mostrar_duracao_media_reclamacao mostrar_ranking_reclamacoes mostrar_reclamacoes sair"
+        echo
+        until [ "$opt" == "sair" ]; do
+            echo "Escolha uma opção de operação:"
+            select opt in $OPCOES; do
+                if [ "$opt" == "selecionar_arquivo" ]; then
+                    echo
+                    echo "Escolha uma opção de arquivo:"
+                    OPCOES_ARQ=$( ls dados )
+                    select opt_arq in $OPCOES_ARQ; do
+                        vec_reset
+                        arq_escol=$opt_arq    
+                        echo "+++ Arquivo atual: $arq_escol"
+                        echo "+++ Número de reclamações: $( tail -n +2 dados/$arq_escol | wc -l )"
+                        echo "+++++++++++++++++++++++++++++++++++++++"
+                        break
+                    done
+                
+                elif [ "$opt" == "adicionar_filtro_coluna" ]; then
+                    echo
+                    echo "Escolha uma opção de coluna para o filtro:"
+                    IFS=";"
+                    OPCOES_COL=$( head -n 1 dados/$arq_escol )
+                    select opt_col in $OPCOES_COL; do
+                        col_escol=$REPLY
+                        break
+                    done
+                    if [ $col_escol -ne 20 ]; then
+                    IFS=$'\n'
+                    echo
+                    echo "Escolha uma opção de valor para $opt_col:"
+                    OPCOES_FIL=$( tail -n +2 dados/$arq_escol | cut -d';' -f$col_escol | sort | uniq )
+                    select opt_fil in $OPCOES_FIL; do
+                        fil_escol=$opt_fil
+                        break
+                    done
+                    IFS=$IFSOLD
+                    vec[$col_escol]="$fil_escol"
+                    
+                    #Tratamento adequado para formatação de texto do filtro da coluna 20
+                    else
+                        IFS=$';'
+                        echo
+                        echo "Escolha uma opção de valor para Atendeu Solicitação:"
+                        OPCOES_FIL=" ;não;não sei;parcialmente;sim;undefined"
+                        select opt_fil in $OPCOES_FIL; do
+                            fil_escol=$opt_fil
+                            break
+                        done
+                        IFS=$IFSOLD
+                        vec[$col_escol]="$fil_escol"
+                    fi
+                    echo "+++ Adicionado filtro: $opt_col = $fil_escol"
+                    echo "+++ Arquivo atual: $arq_escol"
+                    echo "+++ Filtros atuais:" 
+                    vec_print
+                    echo "+++ Número de reclamações: $( count_reclama )"
+                    echo "+++++++++++++++++++++++++++++++++++++++"
+                
+                elif [ "$opt" == "limpar_filtros_colunas" ]; then
+                    vec_reset
+                    echo "+++ Filtros removidos"
+                    echo "+++ Arquivo atual: $arq_escol"
+                    echo "+++ Número de reclamações: $( tail -n +2 dados/$arq_escol | wc -l )"
+                    echo "+++++++++++++++++++++++++++++++++++++++"
+                elif [ "$opt" == "sair" ]; then
+                    echo "Fim do programa"
+                    echo "+++++++++++++++++++++++++++++++++++++++"
+                fi
+                break
+            done
+            echo
+        done    
+        exit 1
+    fi
     #-----------------------------------------
 
 
