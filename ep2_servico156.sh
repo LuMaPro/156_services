@@ -2,19 +2,6 @@
 
 
 
-##################################################################
-# MAC0216 - Técnicas de Programação I (2024)
-# EP2 - Programação em Bash
-#
-# Nome do(a) aluno(a) 1: Lucas Martins Próspero
-# NUSP 1: 15471925
-#
-# Nome do(a) aluno(a) 2: Felipe Cordeiro Caram
-# NUSP 2: 15451151
-##################################################################
-
-
-
 #----------------- Corpo inicial -----------------
 arg=$1          #Parâmetro passado na linha de comando
 
@@ -110,6 +97,74 @@ function convert {                      #Faz a conversão dos arquivos para o pa
     IFS=$IFSOLD
 
 }
+
+function vec_reset {
+    
+    #Função reseta o vetor de filtros
+    for i in $( seq 1 20 ); do
+        vec[i]=0
+    done
+}
+
+function vec_print {
+    
+    #Função para printar os filtros atuais
+
+    #Vetor auxiliar que associa os índices às colunas dos arquivos ".csv"
+    local vec_aux=()
+    vec_aux[1]="Data de abertura"
+    vec_aux[2]="Canal"
+    vec_aux[3]="Tema"
+    vec_aux[4]="Assunto"
+    vec_aux[5]="Serviço"
+    vec_aux[6]="Logradouro"
+    vec_aux[7]="Número"
+    vec_aux[8]="CEP"
+    vec_aux[9]="Subprefeitura"
+    vec_aux[10]="Distrito"
+    vec_aux[11]="Latitude"
+    vec_aux[12]="Longitude"
+    vec_aux[13]="Data do Parecer"
+    vec_aux[14]="Status da solicitação"
+    vec_aux[15]="Orgão"
+    vec_aux[16]="Data"
+    vec_aux[17]="Nível"
+    vec_aux[18]="Prazo Atendimento"
+    vec_aux[19]="Qualidade Atendimento"
+    vec_aux[20]="Atendeu Solicitação"
+
+    #Se o elemento correspondente ao índice não for "0", então
+    #significa que tal índice corresponde a um filtro ativo
+    for i in $( seq 1 20 ); do
+        if [ "${vec[i]}" != "0" ]; then
+            echo -n "${vec_aux[i]} = ${vec[i]} | "
+        fi
+    done
+
+    echo 
+}
+
+function count_reclama {
+
+    #Função para calcular a quantidade de reclamações, com
+    #base nos filtros ativos.
+    local resultado=$( cat dados/$arq_escol )
+    
+    for i in $( seq 1 20 ); do
+        if [ "${vec[i]}" != "0" ]; then
+            resultado=$( echo "$resultado" | grep "${vec[i]}" )
+        fi
+    done
+
+    echo "$( echo "$resultado" | wc -l )"
+}
+#-------------------------------------------------
+
+
+
+#------- Inicialização do vetor de filtros ------- 
+vec=()
+vec_reset
 #-------------------------------------------------
 
 
