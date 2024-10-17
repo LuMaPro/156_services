@@ -115,10 +115,44 @@ function convert {                      #Faz a conversão dos arquivos para o pa
 
 
 #---------------Corpo principal---------------
+if [[ "$arg" == "" || -e "$arg" ]]; then
+    
+    
+    
+    #--------- Download dos arquivos ---------
+    if [ -e "$arg" ]; then
+        baixa_arq
+        convert
+    fi
+    #-----------------------------------------
 
-#---------------------------------------------
+    
+
+    #---------- Tratamento de erro -----------
+    if [ ! -d "dados" ]; then
+    
+        echo "ERRO: Não há dados baixados."
+        echo "Para baixar os dados antes de gerar as estatísticas, use:"
+        echo "    ./ep2_servico156.sh <nome do arquivo com URLs de dados do Serviço 156>"
+        exit 1
+    fi
+    #-----------------------------------------
+
+
+
+    #----------- Menu de seleções ------------
+    
+    #-----------------------------------------
+
+
+
+#-------------- Tratamento de erro ---------------
+else
+    echo "ERRO: O arquivo $arg não existe."
+    exit 1
+fi
+#-------------------------------------------------
 
 
 
 exit 0
-
