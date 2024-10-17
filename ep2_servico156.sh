@@ -171,6 +171,84 @@ function count_reclama {
 
     echo "$( echo "$resultado" | wc -l )"
 }
+
+function tempo_medio {
+
+    #Função para calcular a duração média, em dias, de uma
+    #reclamação, com base nos filtros ativos 
+    local c_reclama=$( count_reclama )
+    ((c_reclama++))
+    local count=1
+    
+    local resultado=$( cat dados/$arq_escol )
+    
+    for i in $( seq 1 20 ); do
+        if [ "${vec[i]}" != "0" ]; then
+            resultado=$( echo "$resultado" | grep "${vec[i]}" )
+        fi
+    done
+
+    local diferenca=0
+    local tempo=0
+
+    until [ $count == $c_reclama ]; do
+        
+        local data1=$(echo "$resultado" | cut -d';' -f1 | sed -n "${count}p" )
+        local data2=$(echo "$resultado" | cut -d';' -f13 | sed -n "${count}p" )
+
+        local tempo1=$(date -d "$data1" +%s)
+        local tempo2=$(date -d "$data2" +%s)
+
+        #Calcula a diferença em segundos
+        diferenca=$((tempo2 - tempo1))
+        tempo=$((tempo + diferenca))
+
+        ((count++))
+    done
+
+    #Conversão de segundos para dias
+    local media_dias=$( bc <<< "$tempo / 86400 / $( count_reclama )")
+
+    echo "+++ Duração média da reclamação: $media_dias dias"
+    echo "+++++++++++++++++++++++++++++++++++++++"
+}
+
+function rank_reclama {
+    
+    #Função para listar as cinco categorias, baseadas no
+    #filtro de coluna, com mais reclamações
+    local resultado=$( cat dados/$arq_escol )
+
+    for i in $( seq 1 20 ); do
+        if [ "${vec[i]}" != "0" ]; then
+            resultado=$( echo "$resultado" | grep "${vec[i]}" )
+        fi
+    done
+    echo "+++ Serviço com mais reclamações:"
+    echo "$( echo "$resultado" | cut -d';' -f$col_escol | sort | uniq -c | sort -nr | head -n5 )"
+    echo "+++++++++++++++++++++++++++++++++++++++" 
+
+}
+
+function mostra_reclama {
+
+    #Função para listar as reclamações, com base nos
+    #filtros ativos
+    local resultado=$( cat dados/$arq_escol )
+
+    for i in $( seq 1 20 ); do
+        if [ "${vec[i]}" != "0" ]; then
+            resultado=$( echo "$resultado" | grep "${vec[i]}" )
+        fi
+    done
+
+    echo "$resultado"
+    echo "+++ Arquivo atual: $arq_escol"
+    echo "+++ Filtros atuais:"
+    vec_print
+    echo "+++ Número de reclamações: $( count_reclama )"
+    echo "+++++++++++++++++++++++++++++++++++++++"
+}
 #-------------------------------------------------
 
 
