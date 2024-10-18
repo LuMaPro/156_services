@@ -353,6 +353,25 @@ if [[ "$arg" == "" || -e "$arg" ]]; then
                     echo "+++ Arquivo atual: $arq_escol"
                     echo "+++ Número de reclamações: $( tail -n +2 dados/$arq_escol | wc -l )"
                     echo "+++++++++++++++++++++++++++++++++++++++"
+            
+                elif [ "$opt" == "mostrar_duracao_media_reclamacao" ]; then
+                    tempo_medio                
+                
+                elif [ "$opt" == "mostrar_ranking_reclamacoes" ]; then
+                    echo
+                    echo "Escolha uma opção de coluna para análise:"
+                    IFS=";"
+                    OPCOES_COL=$( head -n 1 dados/$arq_escol )
+                    select opt_col in $OPCOES_COL; do
+                        col_escol=$REPLY
+                        break
+                    done
+                    IFS=$IFSOLD
+                    rank_reclama
+               
+                elif [ "$opt" == "mostrar_reclamacoes" ]; then
+                    mostra_reclama
+                
                 elif [ "$opt" == "sair" ]; then
                     echo "Fim do programa"
                     echo "+++++++++++++++++++++++++++++++++++++++"
