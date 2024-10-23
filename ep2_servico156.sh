@@ -249,6 +249,30 @@ function mostra_reclama {
     echo "+++ Número de reclamações: $( count_reclama )"
     echo "+++++++++++++++++++++++++++++++++++++++"
 }
+
+function valor_filtro {
+    
+    #Função para listar os valores dos filtro considerado,
+    #com base nos filtros ativos
+    local resultado=$( tail -n +2 dados/$arq_escol )
+
+    IFS=$'\n' 
+    
+    for i in $( seq 1 20 ); do
+        if [ "${vec[i]}" != "0" ]; then
+            resultado=$( echo "$resultado" | grep "${vec[i]}" )
+        fi
+    done
+
+    IFS=' '
+    resultado=$( echo "$resultado" | cut -d';' -f$col_escol | sort | uniq )
+
+    local teste=$( echo "$resultado" | tr -d '\r' )
+
+    echo $teste
+
+    IFS=$IFSOLD
+}
 #-------------------------------------------------
 
 
@@ -290,13 +314,16 @@ if [[ "$arg" == "" || -e "$arg" ]]; then
         arq_escol="arquivocompleto.csv"
         OPCOES="selecionar_arquivo adicionar_filtro_coluna limpar_filtros_colunas mostrar_duracao_media_reclamacao mostrar_ranking_reclamacoes mostrar_reclamacoes sair"
         echo
+        
         until [ "$opt" == "sair" ]; do
             echo "Escolha uma opção de operação:"
+            
             select opt in $OPCOES; do
                 if [ "$opt" == "selecionar_arquivo" ]; then
                     echo
                     echo "Escolha uma opção de arquivo:"
                     OPCOES_ARQ=$( ls dados )
+                    
                     select opt_arq in $OPCOES_ARQ; do
                         vec_reset
                         arq_escol=$opt_arq    
@@ -310,36 +337,26 @@ if [[ "$arg" == "" || -e "$arg" ]]; then
                     echo
                     echo "Escolha uma opção de coluna para o filtro:"
                     IFS=";"
-                    OPCOES_COL=$( head -n 1 dados/$arq_escol )
+                    OPCOES_COL=$( head -n 1 dados/$arq_escol | tr -d '\r' )
+                    
                     select opt_col in $OPCOES_COL; do
                         col_escol=$REPLY
                         break
                     done
-                    if [ $col_escol -ne 20 ]; then
+                    
                     IFS=$'\n'
                     echo
                     echo "Escolha uma opção de valor para $opt_col:"
-                    OPCOES_FIL=$( tail -n +2 dados/$arq_escol | cut -d';' -f$col_escol | sort | uniq )
+                    OPCOES_FIL=$( valor_filtro )
+                    
                     select opt_fil in $OPCOES_FIL; do
                         fil_escol=$opt_fil
                         break
                     done
+                    
                     IFS=$IFSOLD
                     vec[$col_escol]="$fil_escol"
                     
-                    #Tratamento adequado para formatação de texto do filtro da coluna 20
-                    else
-                        IFS=$';'
-                        echo
-                        echo "Escolha uma opção de valor para Atendeu Solicitação:"
-                        OPCOES_FIL=" ;não;não sei;parcialmente;sim;undefined"
-                        select opt_fil in $OPCOES_FIL; do
-                            fil_escol=$opt_fil
-                            break
-                        done
-                        IFS=$IFSOLD
-                        vec[$col_escol]="$fil_escol"
-                    fi
                     echo "+++ Adicionado filtro: $opt_col = $fil_escol"
                     echo "+++ Arquivo atual: $arq_escol"
                     echo "+++ Filtros atuais:" 
@@ -362,10 +379,12 @@ if [[ "$arg" == "" || -e "$arg" ]]; then
                     echo "Escolha uma opção de coluna para análise:"
                     IFS=";"
                     OPCOES_COL=$( head -n 1 dados/$arq_escol )
+                    
                     select opt_col in $OPCOES_COL; do
                         col_escol=$REPLY
                         break
                     done
+                    
                     IFS=$IFSOLD
                     rank_reclama
                
