@@ -1,5 +1,11 @@
 # Statistics analysis of the 156 Service from São Paulo City Hall 
 
+## 🧾 Credits
+
+The problem was proposed in the MAC0216 class.
+
+https://uspdigital.usp.br/jupiterweb/obterDisciplina?nomdis=&sgldis=mac0216
+
 ## 🔍 General Overview
 
 This present work, developed in Bash script, allows the user to analyze data collected by São Paulo City Hall.
