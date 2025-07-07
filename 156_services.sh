@@ -1,5 +1,15 @@
 #!/bin/bash
 
+##################################################################
+# MAC0216 - Técnicas de Programação I (2024)
+# EP2 - Programação em Bash
+#
+# Nome do(a) aluno(a) 1: Lucas Martins Próspero
+# NUSP 1: 15471925
+#
+# Nome do(a) aluno(a) 2: Felipe Cordeiro Caram
+# NUSP 2: 15451151
+##################################################################
 
 #----------------- Corpo inicial -----------------
 arg=$1          #Parâmetro passado na linha de comando
